@@ -11,23 +11,23 @@ const RETRY_DELAY = 3000; // Delay between retries in milliseconds (3 seconds in
 export default function TopicsList() {
   const [topics, setTopics] = useState([]);
   const [retryAttempt, setRetryAttempt] = useState(0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const getTopics = async () => {
       try {
-        console.log("base_url:", process.env.BASE_URL);
         const res = await fetch(`${process.env.BASE_URL}/api/topics`, {
           cache: "no-store",
         });
 
         if (!res.ok) {
-          console.log("res", res);
           throw new Error("Failed to fetch topics");
         }
 
         const data = await res.json();
         setTopics(data.topics);
         setRetryAttempt(0); // Reset retry attempt counter on successful fetch
+        setError(null); // Reset error state on successful fetch
       } catch (error) {
         console.log("Error loading topics: ", error);
         if (retryAttempt < RETRY_COUNT - 1) {
@@ -36,7 +36,7 @@ export default function TopicsList() {
             setRetryAttempt(retryAttempt + 1);
           }, RETRY_DELAY);
         } else {
-          console.log("Maximum retry attempts reached");
+          setError("Maximum retry attempts reached"); // Set error message for maximum retries
         }
       }
     };
@@ -46,6 +46,7 @@ export default function TopicsList() {
 
   return (
     <>
+      {error && <div>{error}</div>} {/* Display error message */}
       {topics.map((t) => (
         <div
           key={t._id}

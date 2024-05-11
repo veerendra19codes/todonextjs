@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AddTopic() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState(null);
 
   const router = useRouter();
 
@@ -13,7 +14,7 @@ export default function AddTopic() {
     e.preventDefault();
 
     if (!title || !description) {
-      alert("Title and description are required.");
+      setError("Title and description are required."); // Set error message for missing fields
       return;
     }
 
@@ -33,11 +34,13 @@ export default function AddTopic() {
       }
     } catch (error) {
       console.log(error);
+      setError("Failed to create a topic"); // Set error message for API request failure
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      {error && <div>{error}</div>} {/* Display error message */}
       <input
         onChange={(e) => setTitle(e.target.value)}
         value={title}
